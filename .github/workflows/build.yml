@@ -43,12 +43,8 @@ jobs:
           BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
           PLATFORM=$(find $ANDROID_HOME/platforms -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
 
-          JAVA_FILE=$(find . -name "InputMonitorService.java" | head -n 1)
-          if [ -z "$JAVA_FILE" ]; then
-            echo "Error: InputMonitorService.java not found!"
-            exit 1
-          fi
-          echo "Found Java file at: $JAVA_FILE"
+          echo "Using Build Tools: $BUILD_TOOLS"
+          echo "Using Platform: $PLATFORM"
 
           $BUILD_TOOLS/aapt package -f -m \
             -J build/gen \
@@ -57,7 +53,7 @@ jobs:
 
           javac -d build/classes \
             -classpath $PLATFORM/android.jar \
-            $JAVA_FILE
+            InputMonitorService.java
 
           if [ -f "$BUILD_TOOLS/d8" ]; then
             $BUILD_TOOLS/d8 --output build/ $(find build/classes -name "*.class")
