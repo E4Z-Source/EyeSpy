@@ -20,28 +20,21 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d temp_tools
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          mv temp_tools/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
-          rm -rf cmdline-tools.zip temp_tools
-          
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools-version: 34.0.0
 
       - name: Build APK with Android Build Tools
+        working-directory: ${{ github.workspace }}
         run: |
+          echo "Current directory: $(pwd)"
+          ls -la
+
           mkdir -p build/classes build/gen build/outputs
 
-          BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
-          PLATFORM=$(find $ANDROID_HOME/platforms -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
+          PLATFORM=$ANDROID_HOME/platforms/android-34
+          BUILD_TOOLS=$ANDROID_HOME/build-tools/34.0.0
 
           echo "Using Build Tools: $BUILD_TOOLS"
           echo "Using Platform: $PLATFORM"
@@ -55,11 +48,7 @@ jobs:
             -classpath $PLATFORM/android.jar \
             InputMonitorService.java
 
-          if [ -f "$BUILD_TOOLS/d8" ]; then
-            $BUILD_TOOLS/d8 --output build/ $(find build/classes -name "*.class")
-          else
-            $BUILD_TOOLS/dx --dex --output=build/classes.dex build/classes
-          fi
+          $BUILD_TOOLS/d8 --output build/ $(find build/classes -name "*.class")
 
           $BUILD_TOOLS/aapt package -f \
             -M AndroidManifest.xml \
