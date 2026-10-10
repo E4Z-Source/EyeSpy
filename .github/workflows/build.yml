@@ -17,17 +17,47 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+            zlib1g-dev libncurses5:i386 libstdc++6:i386 zlib1g:i386 \
+            libffi-dev libssl-dev cmake
 
       - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
           pip install cython==0.29.36 buildozer
+
+      - name: Generate Clean Buildozer Spec
+        run: |
+          # Remove any existing spec to avoid conflicts
+          rm -f buildozer.spec
+          
+          # Write a fresh, perfectly encoded spec file
+          cat << 'EOF' > buildozer.spec
+          [app]
+          title = EyeSpy
+          package.name = eyespy
+          package.domain = org.eyespy
+          source.include_exts = py,png,jpg,kv,atlas
+          version = 0.1
+          requirements = python3,kivy,requests,urllib3,certifi
+          orientation = portrait
+          android.permissions = CAMERA,INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+          android.api = 33
+          android.minapi = 21
+          android.accept_sdk_license = True
+
+          [buildozer]
+          log_level = 2
+          warn_on_root = 1
+          EOF
+
+          echo "=== Verified buildozer.spec ==="
+          cat buildozer.spec
 
       - name: Build APK with Buildozer
         run: |
