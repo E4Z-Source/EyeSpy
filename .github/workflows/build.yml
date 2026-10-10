@@ -50,7 +50,7 @@ jobs:
           android.ndk_version = 25b
 
           [buildozer]
-          log_level = 2
+          log_level = 1
           warn_on_root = 1
           EOF
           
@@ -63,7 +63,7 @@ jobs:
 
       - name: Build APK with Buildozer
         run: |
-          buildozer -v android debug
+          buildozer android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
