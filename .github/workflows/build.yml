@@ -38,6 +38,7 @@ jobs:
 
       - name: Build APK with Android Build Tools
         run: |
+          cd $GITHUB_WORKSPACE
           mkdir -p build/classes build/gen build/outputs
 
           BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
