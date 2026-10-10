@@ -43,9 +43,6 @@ jobs:
           BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
           PLATFORM=$(find $ANDROID_HOME/platforms -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
 
-          echo "Using Build Tools: $BUILD_TOOLS"
-          echo "Using Platform: $PLATFORM"
-
           JAVA_FILE=$(find . -name "InputMonitorService.java" | head -n 1)
           if [ -z "$JAVA_FILE" ]; then
             echo "Error: InputMonitorService.java not found!"
