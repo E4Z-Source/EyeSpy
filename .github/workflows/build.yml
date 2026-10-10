@@ -17,14 +17,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Verify Repository Files
-        run: |
-          ls -la
-          if [ ! -f "buildozer.spec" ]; then
-            echo "Error: buildozer.spec is missing!"
-            exit 1
-          fi
-
       - name: Install Dependencies
         run: |
           sudo apt-get update
