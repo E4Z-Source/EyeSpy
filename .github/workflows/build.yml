@@ -24,11 +24,26 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools$ANDROID_HOME/cmdline-tools/latest
+          unzip -q cmdline-tools.zip -d temp_tools
+          mv temp_tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          rm -rf cmdline-tools.zip temp_tools
           
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses \vert{}\vert{} true$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+
+      - name: Build APK with Android Build Tools
+        run: |
+          mkdir -p build/classes build/gen build/outputs
+
+          BUILD_TOOLS=$(find$ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
+          PLATFORM=$(find$ANDROID_HOME/platforms -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
+
+          echo "Using Build Tools: $BUILD_TOOLS"
+          echo "Using Platform: $PLATFORM"
+
+          $BUILD_TOOLS/aapt package -f -m \
+            -J build/gen \
+            -M Android
