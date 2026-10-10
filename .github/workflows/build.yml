@@ -62,6 +62,10 @@ jobs:
           buildozer android clean || true
 
       - name: Build APK with Buildozer
+        env:
+          # Force buildozer to use NDK 25b and bypass preinstalled runner overrides
+          ANDROID_NDK: /home/runner/.buildozer/android/platform/android-ndk-r25b
+          ANDROID_NDK_HOME: /home/runner/.buildozer/android/platform/android-ndk-r25b
         run: |
           buildozer android debug
 
