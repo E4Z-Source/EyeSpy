@@ -19,12 +19,10 @@ jobs:
 
       - name: Install System Dependencies
         run: |
-          sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
-            zlib1g-dev libncurses5:i386 libstdc++6:i386 zlib1g:i386 \
-            libffi-dev libssl-dev cmake
+            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake
 
       - name: Install Buildozer and Cython
         run: |
@@ -33,10 +31,7 @@ jobs:
 
       - name: Generate Clean Buildozer Spec
         run: |
-          # Remove any existing spec to avoid conflicts
           rm -f buildozer.spec
-          
-          # Write a fresh, perfectly encoded spec file
           cat << 'EOF' > buildozer.spec
           [app]
           title = EyeSpy
@@ -55,7 +50,7 @@ jobs:
           log_level = 2
           warn_on_root = 1
           EOF
-
+          
           echo "=== Verified buildozer.spec ==="
           cat buildozer.spec
 
