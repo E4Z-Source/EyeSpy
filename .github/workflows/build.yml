@@ -20,44 +20,15 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build APK with Android Build Tools
         run: |
-          mkdir -p build/classes build/gen build/outputs
+          export ANDROID_HOME=$HOME/android-sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools$ANDROID_HOME/cmdline-tools/latest
+          
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-          BUILD_TOOLS=$(find$ANDROID_HOME/build-tools -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
-          PLATFORM=$(find$ANDROID_HOME/platforms -maxdepth 1 -mindepth 1 | sort -V | tail -n 1)
-
-          echo "Using Build Tools: $BUILD_TOOLS"
-          echo "Using Platform: $PLATFORM"
-
-          $BUILD_TOOLS/aapt package -f -m \
-            -J build/gen \
-            -M AndroidManifest.xml \
-            -I $PLATFORM/android.jar
-
-          javac -d build/classes \
-            -classpath $PLATFORM/android.jar \
-            InputMonitorService.java
-
-          if [ -f "$BUILD_TOOLS/d8" ]; then
-            $BUILD_TOOLS/d8 --output build/ $(find build/classes -name "*.class")
-          else
-            $BUILD_TOOLS/dx --dex --output=build/classes.dex build/classes
-          fi
-
-          $BUILD_TOOLS/aapt package -f \
-            -M AndroidManifest.xml \
-            -I $PLATFORM/android.jar \
-            -F build/outputs/app-unsigned.apk \
-            build/
-
-          keytool -genkey -v -keystore build/debug.keystore \
-            -storepass android -alias androiddebugkey \
-            -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-
-          $BUILD_TOOLS/apksigner sign \
-            --ks build/debug.keystore \
-            
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/
