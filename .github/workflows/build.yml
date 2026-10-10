@@ -56,6 +56,10 @@ jobs:
           echo "=== Verified buildozer.spec ==="
           cat buildozer.spec
 
+      - name: Clean Previous Build Cache
+        run: |
+          buildozer android clean || true
+
       - name: Build APK with Buildozer
         run: |
           buildozer -v android debug
