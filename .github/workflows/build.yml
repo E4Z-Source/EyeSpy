@@ -1,46 +1,73 @@
+
 name: Build Python APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Check Repository Files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in repository:"
+          ls -la
+          echo "Searching for buildozer.spec:"
+          find . -name "buildozer.spec" -type f
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: "17"
 
       - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            git zip unzip autoconf libtool pkg-config \
-            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake patchelf
+            git zip unzip \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses-dev \
+            libffi-dev libssl-dev \
+            cmake patchelf \
+            build-essential ccache \
+            libltdl-dev
 
       - name: Install Buildozer and Cython
         run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36 buildozer
+          python -m pip install --upgrade pip
+          python -m pip install "cython==0.29.36" buildozer
 
-      - name: Run Buildozer
+      - name: Verify Buildozer Configuration
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            echo "ERROR: buildozer.spec is missing from the repository root."
+            exit 1
+          fi
+          echo "Buildozer configuration found!"
+          cat buildozer.spec
+
+      - name: Build APK
         run: |
           buildozer -v android debug
 
-      - name: Upload APK Artifact
+      - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: EyeSpy-Python-APK
           path: bin/*.apk
+          if-no-files-found: warn
