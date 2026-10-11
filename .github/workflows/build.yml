@@ -22,9 +22,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
-            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake
+            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake patchelf
 
-      - name: Install Buildozer, Cython, and Stable p4a
+      - name: Install Buildozer, Cython, and Pinned p4a
         run: |
           pip install --upgrade pip
           pip install cython==0.29.36 buildozer
@@ -65,6 +65,12 @@ jobs:
       - name: Build APK with Buildozer
         run: |
           buildozer android debug
+
+      - name: Print Error Log on Failure
+        if: failure()
+        run: |
+          echo "=== BUILDOZER LOG OUTPUT ==="
+          find . -name "buildozer.log" -exec cat {} +
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
