@@ -24,11 +24,10 @@ jobs:
             git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
             zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake patchelf
 
-      - name: Install Buildozer, Cython, and p4a Develop Branch
+      - name: Install Buildozer and Cython
         run: |
           pip install --upgrade pip
           pip install cython==0.29.36 buildozer
-          pip install git+https://github.com/kivy/python-for-android.git@develop
 
       - name: Generate Clean Buildozer Spec
         run: |
@@ -44,11 +43,11 @@ jobs:
           requirements = python3,kivy,openssl
           orientation = portrait
           android.permissions = CAMERA,INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
-          android.api = 34
-          android.minapi = 24
+          android.api = 33
+          android.minapi = 21
           android.accept_sdk_license = True
           android.archs = arm64-v8a
-          android.ndk_version = 28c
+          android.ndk_version = 25b
 
           [buildozer]
           log_level = 2
@@ -57,6 +56,11 @@ jobs:
           
           echo "=== Verified buildozer.spec ==="
           cat buildozer.spec
+
+      - name: Remove Conflicting Runner NDK
+        run: |
+          # Remove pre-installed runner NDKs that cause version mismatch crashes
+          sudo rm -rf /usr/local/lib/android/sdk/ndk/*
 
       - name: Clean Previous Build Cache
         run: |
