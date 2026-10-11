@@ -12,63 +12,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Build with Buildozer
+        uses: kivy/buildozer-action@v1
         with:
-          python-version: '3.10'
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
-            zlib1g-dev libncurses-dev libffi-dev libssl-dev cmake patchelf
-
-      - name: Install Buildozer and Cython
-        run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36 buildozer
-
-      - name: Generate Clean Buildozer Spec
-        run: |
-          rm -f buildozer.spec
-          cat << 'EOF' > buildozer.spec
-          [app]
-          title = EyeSpy
-          package.name = eyespy
-          package.domain = org.eyespy
-          source.dir = .
-          source.include_exts = py,png,jpg,kv,atlas
-          version = 0.1
-          requirements = python3,kivy,openssl
-          orientation = portrait
-          android.permissions = CAMERA,INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
-          android.api = 33
-          android.minapi = 21
-          android.accept_sdk_license = True
-          android.archs = arm64-v8a
-          android.ndk_version = 25b
-
-          [buildozer]
-          log_level = 2
-          warn_on_root = 1
-          EOF
-          
-          echo "=== Verified buildozer.spec ==="
-          cat buildozer.spec
-
-      - name: Remove Conflicting Runner NDK
-        run: |
-          # Remove pre-installed runner NDKs that cause version mismatch crashes
-          sudo rm -rf /usr/local/lib/android/sdk/ndk/*
-
-      - name: Clean Previous Build Cache
-        run: |
-          buildozer android clean || true
-
-      - name: Build APK with Buildozer
-        run: |
-          buildozer android debug
+          filename: buildozer.spec
+          android_debug: true
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
