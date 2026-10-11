@@ -67,7 +67,9 @@ jobs:
           ls -la buildozer.spec
 
       - name: Build APK
+        timeout-minutes: 25
         run: |
+          export BUILDER_NON_INTERACTIVE=1
           buildozer -v android debug
 
       - name: Upload APK
